@@ -5,6 +5,7 @@
 %and R8Backtester_Volatility.m
 
 %%TEst comment for GIT
+%%Test2
 
 %%PART 1: Code take from PW Garch 1 so that I can compare volatility of
 %%Garch with Stoch Volatility by passing Garch vol into R8 Backtester 
