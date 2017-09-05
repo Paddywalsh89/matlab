@@ -7,6 +7,7 @@
 %%TEst comment for GIT
 %%Test2
 %%TEst 3 to check how branching works
+%%TEst4 to confirm how branching works
 
 %%PART 1: Code take from PW Garch 1 so that I can compare volatility of
 %%Garch with Stoch Volatility by passing Garch vol into R8 Backtester 
