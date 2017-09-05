@@ -1,1 +1,2 @@
-
+The purpose of this branch is to sort out this issue with Matlab not sucking in the correct data from Gasoil Open. 
+Once cmplete I will merge back into Master. 
