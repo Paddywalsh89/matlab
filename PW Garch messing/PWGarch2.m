@@ -4,11 +4,6 @@
 %Master_M_Recent_Gasoil_Volatility.m
 %and R8Backtester_Volatility.m
 
-%%TEst comment for GIT
-%%Test2
-%%TEst 3 to check how branching works
-%%TEst4 to confirm how branching works
-
 %%PART 1: Code take from PW Garch 1 so that I can compare volatility of
 %%Garch with Stoch Volatility by passing Garch vol into R8 Backtester 
 
@@ -20,7 +15,7 @@ openRange = 'C3:C943'; %4th Oct 2010  - 01th Oct 2014
 open=xlsread(filename, sheet1, openRange);
 dateRange = 'N3:N943';
 date=xlsread(filename, sheet1, dateRange);
-date = x2mdate(date, 1,'datetime');
+date = x2mdate(date, 0,'datetime'); %for convention 0, starts at 1900. Convention 1 starts at 1904. 
 
 
 %%2. Take Log of open price for 1st graph and price returns for 2nd graph. 
@@ -48,6 +43,7 @@ figure1 = figure;
 subplot1 = subplot(2,1,1,'Parent',figure1);
 hold(subplot1,'on');
 plot(date,y,'Parent',subplot1);
+ylim([0 1100]);
 ylabel('Gasoil Open Price Oct 2010-2014');
 box(subplot1,'on');
 set(subplot1,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid','on');
@@ -61,6 +57,7 @@ set(subplot1,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid
 subplot2 = subplot(2,1,2,'Parent',figure1);
 hold(subplot2,'on');
 plot(date,r,'Parent',subplot2);
+ylim([ -20 20]);
 ylabel('returns [%]');
 box(subplot2,'on');
 set(subplot2,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid','on');
@@ -82,14 +79,16 @@ figure2 = figure;
 subplot3 = subplot(2,1,1,'Parent',figure2);
 hold(subplot3,'on');
 autocorr(e); % input to ACF are innovations after simple linear regression of returns
+ylim([ -0.2 1]);
 % PACF
  
 subplot4 = subplot(2,1,2,'Parent',figure2);
 hold(subplot4,'on');
 parcorr(e); % input to ACF are innovations after simple linear regression of returns
+ylim([ -0.2 1]);
 % Ljung-Box test
  
-[hLB,pLB] = lbqtest(e,'Lags',3);
+[hLB,pLB] = lbqtest(e,'Lags',3)
 
 
 
