@@ -111,9 +111,9 @@ ylim([ -0.2 1]);
  
  [hARCH, pARCH] = archtest(e,'lags',3)
  
- %% AR-GARCH model, ARIMA object
-MdlG = arima('ARLags',3,'Variance',garch(1,1)); % normal innovations
-MdlT = arima('ARLags',3,'Variance',garch(1,1)); % t-distributed innovations
+ %% GARCH model, 
+MdlG = garch(1,1); % normal innovations
+MdlT = garch(1,1); % t-distributed innovations
 MdlT.Distribution = 't';
 
 %% Pure Garch(1,1) model
@@ -133,9 +133,9 @@ EstMdloffset0G = estimate(Mdloffset0G,r);
 % t-distributed innovations
 [EstMdloffset0T,EstParamCov1,logL_GJR_T] = estimate(Mdloffset0T,r);
 
-%% Volatility inference and log-likelihood objective function value from estimated AR-GARCH model
-[~,vG,logLG] = infer(EstMdlG,r);
-[~,vT,logLT] = infer(EstMdlT,r);
+%% Volatility inference and log-likelihood objective function value from estimated GARCH model
+[vG,logLG] = infer(EstMdlG,r);
+[vT,logLT] = infer(EstMdlT,r);
 %[~,v_GJR_G,logL_GJR_G] = infer(EstMdloffset0G,r); %% Infering volatility from estimated GARCH (1,1) model
 var_GJR_T = infer(EstMdloffset0T,r);
 %% Fitted models comparison using AIC, BIC
@@ -143,10 +143,41 @@ var_GJR_T = infer(EstMdloffset0T,r);
 % inputs: values of loglikelihood objective functions for particular model, number of parameters
 % and length of time series
 [aic,bic] = aicbic([logLG,logLT],[5,6],length(r))
+%%  eGarch(1,1) model
+MdleG=egarch(1,1);% normal innovations
+MdleT=egarch(1,1);% t-distributed innovations
+MdleT.Distribution = 't';
+%% eGarch Parameters estimation
+% normal innovations
+EstMdleG = estimate(MdleG,r);
+% t-distributed innovations
+EstMdleT = estimate(MdleT,r);
+%% Volatility inference and log-likelihood objective function value from estimated eGARCH model
+[veG,logLeG] = infer(EstMdleG,r);
+[veT,logLeT] = infer(EstMdleT,r);
+%%  GJR-Garch(1,1) model
+MdlgjrG=gjr(1,1);% normal innovations
+MdlgjrT=gjr(1,1);% t-distributed innovations
+MdlgjrT.Distribution = 't';
+%% GJR-Garch Parameters estimation
+% normal innovations
+EstMdlgjrG = estimate(MdlgjrG,r);
+% t-distributed innovations
+EstMdlgjrT = estimate(MdlgjrT,r);
+%% Volatility inference and log-likelihood objective function value from estimated GJR-GARCH model
+[vgjrG,logLgjrG] = infer(EstMdlgjrG,r);
+[vgjrT,logLgjrT] = infer(EstMdlgjrT,r);
 
 %% Comparing fitted models using BIC, AIC
  
-[aic2,bic2] = aicbic([logLT,logL_GJR_T],[6,7],length(r))
+[aic2,bic2] = aicbic([logLeT,logLeG],[6,7],length(r))
+%% Comparing fitted models using BIC, AIC
+ 
+[aic3,bic3] = aicbic([logLeT,logLT],[6,6],length(r))
+
+%% Comparing fitted models using BIC, AIC
+ 
+[aic4,bic4] = aicbic([logLeT,logLgjrT],[6,6],length(r))
 
 %% plot results
  
@@ -163,10 +194,10 @@ set(subplot7,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid
  
 subplot8 = subplot(2,1,2,'Parent',figure4);
 hold(subplot8,'on');
-plot(date,vT);
+plot(date,vgjrT);
 % volatility AR-GARCH, innovations normally distributed
- 
-plot(date,vG);
+ plot(date,vgjrG);
+   
 ylabel('volatility');
 legend({'$\varepsilon_t$ $t$-distributed','$\varepsilon_t$ normally distributed'},'Interpreter','latex');
 set(subplot8,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid','on','ZMinorGrid',...
