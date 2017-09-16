@@ -33,7 +33,7 @@ T = length(y);
 %for i = 2:1:T;
    % returnsasrow(i)=y(i)-y(i-1);
 %end
-r=transpose(r);
+r_row=transpose(r);
 
 %% Plot C and r
  
@@ -56,7 +56,7 @@ set(subplot1,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid
 
 subplot2 = subplot(2,1,2,'Parent',figure1);
 hold(subplot2,'on');
-plot(date,r,'Parent',subplot2);
+plot(date,r_row,'Parent',subplot2);
 ylim([ -20 20]);
 ylabel('returns [%]');
 box(subplot2,'on');
@@ -88,11 +88,91 @@ parcorr(e); % input to ACF are innovations after simple linear regression of ret
 ylim([ -0.2 1]);
 % Ljung-Box test
  
-[hLB,pLB] = lbqtest(e,'Lags',3)
+[hLB,pLB] = lbqtest(e,'Lags',[10,16])
 
 
+%% Conditional heteroskedasticity of returns - ACF, PACF, Engle's ARCH test
+ 
+% ACF
+ 
+figure3 = figure;
+subplot5 = subplot(2,1,1,'Parent',figure3);
+hold(subplot5,'on');
+autocorr(e.^2);
+ylim([ -0.2 1]);
+% PACF
+ 
+subplot6 = subplot(2,1,2,'Parent',figure3);
+hold(subplot6,'on');
+parcorr(e.^2);
+ylim([ -0.2 1]);
 
+% ARCH test
+ 
+ [hARCH, pARCH] = archtest(e,'lags',3)
+ 
+ %% AR-GARCH model, ARIMA object
+MdlG = arima('ARLags',3,'Variance',garch(1,1)); % normal innovations
+MdlT = arima('ARLags',3,'Variance',garch(1,1)); % t-distributed innovations
+MdlT.Distribution = 't';
 
+%% Pure Garch(1,1) model
+Mdloffset0G=garch(1,1);% normal innovations
+Mdloffset0T=garch(1,1);% t-distributed innovations
+Mdloffset0T.Distribution = 't';
+
+%% Parameters estimation
+% normal innovations
+EstMdlG = estimate(MdlG,r);
+% t-distributed innovations
+EstMdlT = estimate(MdlT,r);
+
+%% GARCH without mean offset (\mu_t = 0)
+% normally distributed innovations
+EstMdloffset0G = estimate(Mdloffset0G,r);
+% t-distributed innovations
+[EstMdloffset0T,EstParamCov1,logL_GJR_T] = estimate(Mdloffset0T,r);
+
+%% Volatility inference and log-likelihood objective function value from estimated AR-GARCH model
+[~,vG,logLG] = infer(EstMdlG,r);
+[~,vT,logLT] = infer(EstMdlT,r);
+%[~,v_GJR_G,logL_GJR_G] = infer(EstMdloffset0G,r); %% Infering volatility from estimated GARCH (1,1) model
+var_GJR_T = infer(EstMdloffset0T,r);
+%% Fitted models comparison using AIC, BIC
+% AIC,BIC
+% inputs: values of loglikelihood objective functions for particular model, number of parameters
+% and length of time series
+[aic,bic] = aicbic([logLG,logLT],[5,6],length(r))
+
+%% Comparing fitted models using BIC, AIC
+ 
+[aic2,bic2] = aicbic([logLT,logL_GJR_T],[6,7],length(r))
+
+%% plot results
+ 
+% Closing prices
+ 
+figure4 = figure;
+subplot7 = subplot(2,1,1,'Parent',figure4);
+hold(subplot7,'on');
+plot(date,y);
+ylabel('Closing price');
+set(subplot7,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid','on','ZMinorGrid',...
+    'on');
+% volatility AR-GARCH, innovations t-distributed
+ 
+subplot8 = subplot(2,1,2,'Parent',figure4);
+hold(subplot8,'on');
+plot(date,vT);
+% volatility AR-GARCH, innovations normally distributed
+ 
+plot(date,vG);
+ylabel('volatility');
+legend({'$\varepsilon_t$ $t$-distributed','$\varepsilon_t$ normally distributed'},'Interpreter','latex');
+set(subplot8,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid','on','ZMinorGrid',...
+    'on');
+
+ 
 %%2. Fit an eGarch Model, a Garch (1,1) model and a GRJ model) 
 %where - EstParamCov=Variance-covariance matrix of maximum likelihood estimates of model parameters known to the optimizer, returned as a numeric matrix.
 %and - logL= Optimized loglikelihood objective function value, returned as a scalar. https://uk.mathworks.com/help/econ/cvm.estimate.html
@@ -125,6 +205,7 @@ title('Inferred Conditional Variances')
 
 
 %%Part 2: Code taken verbatum from Master_M_Recent_Gasoil_Volatility.m
+%%This code is not related to the mmquant example. 
 
 addpath('C:\Users\Walsh_pad\Dropbox\Further Study\Thesis\myfiles\Ch5')
 addpath('C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Gasoil Data\Gasoil_Daily')
