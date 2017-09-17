@@ -14,9 +14,9 @@
 %%Weekly data%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%--0.5-hourly----------------------------------------------------------------
 %**Feb*********************************************************************
-%path added within m-file addpath('C:\Users\Walsh_pad\Dropbox\Further Study\Gasoil Data\Gasoil Half-hourly\Weekly')
-%Use alternative means of accessing data: 
-addpath('C:\Users\Walsh_pad\Dropbox\Further Study\Thesis\myfiles\Ch5')
+ 
+%%1. Add Dail Gasoil Data from 2010 to 2014 
+ addpath('C:\Users\Walsh_pad\Dropbox\Further Study\Thesis\myfiles\Ch5')
 addpath('C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Gasoil Data\Gasoil_Daily')
 filename = 'Gasoil';
 sheet1 = 3; 
@@ -32,25 +32,19 @@ sp=xlsread(filename, sheet1, spRange);
 spDate=xlsread(filename, sheet1, spDateRange);
 formatIn = 'dd-mm-yyyy';
  matlabdates = datenum('30-Dec-1899',formatIn)+date;
+mmdate = x2mdate(date, 0,'datetime'); %for convention 0, starts at 1900. Convention 1 starts at 1904. 
+
 %alpha = flipud(alpha_reverse);
 gasoil_data = alpha;
 %[n]= numel(alpha);
 
-addpath('C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Thesis\myfiles\AppendixB\Chapter 5 - Experiment 1 - Optimisation_Gasoil_Daily_Charts_Volatility_Study')
+%addpath('C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Thesis\myfiles\AppendixB\Chapter 5 - Experiment 1 - Optimisation_Gasoil_Daily_Charts_Volatility_Study')
 w=20; shift=0.5;offset=6;ma=1;
 %clear shift w
 excel_columnc=3;excel_columnd=4;excel_columne=5;excel_columnf=6;excel_columng=7;excel_columnh=8;excel_columni=9;excel_columnj=10;
 excel_row=6;
-%for ma=1;%0:1;
-    %if ma==1;
-    
-    %%18-10-16 no need for this loop. 
- %for shift = 0:0.5:0.5;%0:0.1:1; 
-%     %%excel_columnc=excel_columnc+9;excel_columnd=excel_columnd+9;excel_columne=excel_columne+9;excel_columnf=excel_columnf+9;excel_columng=excel_columng+9;excel_columnh=excel_columnh+9;excel_columni=excel_columni+9;excel_columnj=excel_columnj+9;
-%     excel_row=excel_row+1;
-% for w =[25];%[2 5 10 15 20 25 50 100 200];%10 15 20 25 50 100 200];
-% excel_row=excel_row+1;
-R8Backtester_Volatility (spDate, sp, w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj)
+
+R8Backtester_Volatility (spDate, sp, w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj,mmdate)
  %end
 % end
     %else
