@@ -1,6 +1,6 @@
 
 %function R8Backtester_Volatility(spDate,sp,w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj)%gasoil_data_close,excel_row,date,time,indicator
-function R8Backtester_Volatility_Garch (spDate, sp, w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj,mmdate)
+function R8Backtester_Volatility (spDate, sp, w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj)
 %w=20;
 %shift=0;
 %Back-testing procedure for Levy_Index/volatility indicator performance
@@ -64,7 +64,6 @@ data=gasoil_data;
 %Begin moving window process 
 %for k=100:1:n 
 %m=k-w;
-
 m=n-w;
 for i=1:m %PW from m to n to include ALL data points not just most recent m
 %for i=1:m %Matlab completes this iteration first. I.e. data(1+1,1+2,..1+j), then data((i+1)+1,(i+1)+2,+...(i+1)+j)
@@ -78,22 +77,7 @@ end
 gamma(i)=Levyindex(s,w);
 gamma_no_MA(i)=Levyindex(s,w);
 %Compute the Stochastic Volatilty (optional)
-%sigma(i)=volatility(s,w);
- %% GARCH model, 
-%MdlG = garch(1,1); % normal innovations
-MdlT = garch(1,1); % t-distributed innovations
-MdlT.Distribution = 't';
-%% Parameters estimation
-% normal innovations
-%EstMdlG = estimate(MdlG,r);
-% t-distributed innovations
-r=transpose(s);
-EstMdlT = estimate(MdlT,r);
-%% Volatility inference and log-likelihood objective function value from estimated GARCH model
-%[vG,logLG] = infer(EstMdlG,r);
-[sigma,logLT] = infer(EstMdlT,r);
-
-
+sigma(i)=volatility(s,w);
 v(i)=varstatus*variance(s,w);
 % t(i) = time(i);
 % d(i) = date(i);
@@ -129,8 +113,7 @@ for j=1:m %PW m changed to n for ALL data points
 
   v1(i)=v(j)/w; v2(i)=-v(j)/w; %optional
    % time(i)=time(j+w); %07/02/16 +w removed
-    date(i)=date(j+w);%07/02/16 +w removed 
-    mmmdate(i)=mmdate(j+w);
+    date(i)=date(j+w);%07/02/16 +w removed  
     %indicator1(i)=indicator(j); %07/02/16 +w removed - it is a further shift that is not necessary.                 
     x(i)=i; i=i+1;%compute time element for plotting later on.
  
@@ -138,10 +121,11 @@ end
 %Normailse the signal for display purposes.
 %signal=signal./max(signal); - old way of normalising
 % Remove normalising for a second signal=(signal - min(signal))/(max(signal)-min(signal));
-gasoil_data_unnormalised=signal; 
-signal=(signal - min(signal))/(max(signal)-min(signal));
+ signal=(signal - min(signal))/(max(signal)-min(signal));
+ LI_norm = normalised_diff(LI); %Instead normalise between -1 and 1
+  sigma_norm=(sigma - min(sigma))/(max(sigma)-min(sigma));
  gasoil_data_close=(gasoil_data_close - min(gasoil_data_close))/(max(gasoil_data_close)-min(gasoil_data_close));
-figure(1);
+ figure(3);
 plot(x,gamma,'b',x,sigma,'k',x,LI,'r');
 %hold on;
 %plot (sigma, 'b');
@@ -390,47 +374,15 @@ try
   profit_loss(i+1)=profit_loss(i);
 %Plot the result for graphical diagnosis - signal, LI and positions of 
 %zero crossing in terms of ZC = +1 or -1 or 0 otherwise.
-figure(2); 
+figure(1); 
 
-plot(x,signal,'b',x,LI,'r',x,sigma,'k',wx,tally3,'-m.',dateLad,sp,'k',x,ZC,'g',x,v2,'m','Markersize',15);
+plot(x,signal,'b',x,LI_norm,'r',x,sigma_norm,'k',wx,tally3,'-m.',dateLad,sp,'k',x,ZC,'g',x,v2,'m','Markersize',15);
 %plot(x,signal,'b-',x,LI,'r-',x,ZC_plot,'g-',x,v1,'m',x,v2,'m',x,gamma_no_MA*100);
 %plot(x,signal,'b-',x,LI,'r-',x,ZC,'g-',x,v1,'m',x,v2,'m');
 legend('blue = Price Signal','red = Alpha Index','black = Volatility','magenta = Profit','black = S&P500','Location','southwest')
 grid on;
 xlim ([0 940]);
 ylim ([-1 1]);
-catch
-end
-    
-%%Plot of volatility without normalistion  
-    try
-        
-%plot(x,gasoil_data_unnormalised,'b',x,LI,'r',x,sigma,'k',x,ZC,'g',x,v2,'m');%,'Markersize',15);
-figure(3);
-subplot1 = subplot(2,1,1,'Parent',figure(3));
-hold(subplot1,'on');
-plot(mmmdate,gasoil_data_unnormalised,'Parent',subplot1);
-%ylim([0 1100]);
-ylabel('Gasoil Open Price Oct 2010-2014');
-box(subplot1,'on');
-set(subplot1,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid','on');
-
-subplot2 = subplot(2,1,2,'Parent',figure(3));
-hold(subplot2,'on');
-plot(mmmdate,sigma,'k','Parent',subplot2);
-%ylim([ -20 20]);
-ylabel('Volatility');
-box(subplot2,'on');
-set(subplot2,'FontSize',16,'XMinorGrid','on','XTickLabelRotation',45,'YMinorGrid','on');
-
-
-
-%plot(x,signal,'b-',x,LI,'r-',x,ZC_plot,'g-',x,v1,'m',x,v2,'m',x,gamma_no_MA*100);
-%plot(x,signal,'b-',x,LI,'r-',x,ZC,'g-',x,v1,'m',x,v2,'m');
-%legend('blue = Price Signal','red = Alpha Index','black = Volatility','magenta = Profit','black = S&P500','Location','southwest')
-%grid on;
-%xlim ([0 940]);
-%ylim ([-1 1]);
 catch
 end
 
@@ -523,176 +475,174 @@ hold on;
 end
 
  
-% 17-09-2017: Commented out Line 491-659 as I don't want to write anything to excel.
-% Remove comment to reinstate. 
 %  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% % %%This section will print to the general results Excel spreadsheet. 
-% % filename='C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Thesis\myfiles\AppendixB\Chapter 5 MT4_Matlab Trading Backtest\Matlab Code\5.8\Detailed_R0_Trading strategy results.xlsx'
-% % %For Mac
-% %29-1016 Reinstate filename...
-%  filename='C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Thesis\myfiles\AppendixB\Chapter 5 - Experiment 1 - Optimisation_Gasoil_Daily_Charts_Volatility_Study\Results.xlsx'
-% %filename='Detailed Trading strategy results.xlsx'
-% % %Interval% 
-% % %manual enter
-% % %Moving Window
-% % xlswrite(filename,w,3,'C8')
-% % %Shift
-% % xlswrite(filename,shift,3,'D8')
-% % %Movav
-% % %manual enter
-% % %Entries
-% % xlswrite(filename,Entries_Accuracy,3,'F8')
-% % %Exits
-% % xlswrite(filename,Exits_Accuracy,3,'G8')
-% % %Profitability
-% % xlswrite(filename,overall_profit_or_loss,3,'I8')
-% % %Buys
-% % xlswrite(filename,number_of_buys,3,'J8')
-% % %Sells
-% %  xlswrite(filename,number_of_sells,3,'K8')
-%  
-% % filename='Test_R0_Trading strategy results.xlsx'
-%  A = 4;
-%  toplefts = [excel_row];
-% % %Interval% 
-% % %manual enter
-% % %Moving Window
-% % range = XLSrange(size(A),[toplefts,2]);
-% % xlswrite(filename,w,3,range)
-% % %Shift
-% % range = XLSrange(size(A),[toplefts,3]);
-% % xlswrite(filename,shift,3,range)
-% % 
-% % %Entries
-% % range = XLSrange(size(A),[toplefts,5]);
-% % xlswrite(filename,Entries_Accuracy,3,range) %F82
-% % %Exits
-% % range = XLSrange(size(A),[toplefts,6]);
-% % xlswrite(filename,Exits_Accuracy,3,range) %G82
-% % %Profitability
-% % range = XLSrange(size(A),[toplefts,8]);
-% % xlswrite(filename,overall_profit_or_loss,3,range)
-% % %Buys
-% % range = XLSrange(size(A),[toplefts,9]);
-% % xlswrite(filename,number_of_buys,3,range)
-% % %Sells
-% % range = XLSrange(size(A),[toplefts,10]);
-% %  xlswrite(filename,number_of_sells,3,range)
-%  
-% 
-% %here we'll create the loop to write to XLS at each incident number
-% A = 4;
-% 
-% % 29-10-16 removing XLS for speed (line 501-532). Remove comment to
-% % reinstate. 
-% for i = 1:1:event_number;
-% %     te=1:1:size(time_event);
-% %     date = 1:1:size(date_event);
-% %     time_event(te); 
-%     excel_row=excel_row+1; 
-%     toplefts = [excel_row];
-%     NA = 'NA';
-%  %Interval% 
+% %%This section will print to the general results Excel spreadsheet. 
+% filename='C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Thesis\myfiles\AppendixB\Chapter 5 MT4_Matlab Trading Backtest\Matlab Code\5.8\Detailed_R0_Trading strategy results.xlsx'
+% %For Mac
+%29-1016 Reinstate filename...
+ filename='C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Thesis\myfiles\AppendixB\Chapter 5 - Experiment 1 - Optimisation_Gasoil_Daily_Charts_Volatility_Study\Results.xlsx'
+%filename='Detailed Trading strategy results.xlsx'
+% %Interval% 
 % %manual enter
-% %Event Number
+% %Moving Window
+% xlswrite(filename,w,3,'C8')
+% %Shift
+% xlswrite(filename,shift,3,'D8')
+% %Movav
+% %manual enter
+% %Entries
+% xlswrite(filename,Entries_Accuracy,3,'F8')
+% %Exits
+% xlswrite(filename,Exits_Accuracy,3,'G8')
+% %Profitability
+% xlswrite(filename,overall_profit_or_loss,3,'I8')
+% %Buys
+% xlswrite(filename,number_of_buys,3,'J8')
+% %Sells
+%  xlswrite(filename,number_of_sells,3,'K8')
+ 
+% filename='Test_R0_Trading strategy results.xlsx'
+ A = 4;
+ toplefts = [excel_row];
+% %Interval% 
+% %manual enter
+% %Moving Window
 % range = XLSrange(size(A),[toplefts,2]);
-% xlswrite(filename,i,3,range)
-% %Time
-% %range = XLSrange(size(A),[toplefts,3]);
-% %xlswrite(filename,time_event(event_number),3,range)
-% %Date
-% range = XLSrange(size(A),[toplefts,4]);
-% xlswrite(filename,date_event(i),3,range) %F82
-% %Order Type (Buy or Sell)
+% xlswrite(filename,w,3,range)
+% %Shift
+% range = XLSrange(size(A),[toplefts,3]);
+% xlswrite(filename,shift,3,range)
+% 
+% %Entries
 % range = XLSrange(size(A),[toplefts,5]);
-% xlswrite(filename,order_type(i),3,range) %G82
-% % %Order Number ....come back to
-% % range = XLSrange(size(A),[toplefts,6]);
-% % xlswrite(filename,'NA',3,range)
-% %Volatility
-% range = XLSrange(size(A),[toplefts,7]);
-% xlswrite(filename,volatility_value(i),3,range)
-% %Price 
-% range = XLSrange(size(A),[toplefts,13]);
-% xlswrite(filename,order_price(i),3,range)
-%  %Price -5
-%  if event_index(i)>5;
+% xlswrite(filename,Entries_Accuracy,3,range) %F82
+% %Exits
+% range = XLSrange(size(A),[toplefts,6]);
+% xlswrite(filename,Exits_Accuracy,3,range) %G82
+% %Profitability
 % range = XLSrange(size(A),[toplefts,8]);
-%  xlswrite(filename,signal(event_index(i)-5),3,range)
-%  else 
-% 
-%  end
-%  %Price -4
-% if event_index(i)>4;
+% xlswrite(filename,overall_profit_or_loss,3,range)
+% %Buys
 % range = XLSrange(size(A),[toplefts,9]);
-%  xlswrite(filename,signal(event_index(i)-4),3,range)
-% else 
-% 
-% end
-%  
-%  %Price -3
-%  if event_index(i)>3;
+% xlswrite(filename,number_of_buys,3,range)
+% %Sells
 % range = XLSrange(size(A),[toplefts,10]);
-%  xlswrite(filename,signal(event_index(i)-3),3,range)
-%  else 
-% 
-%  end
-%  %Price -2
-%  if  event_index(i)>2;
-% range = XLSrange(size(A),[toplefts,11]);
-%  xlswrite(filename,signal(event_index(i)-2),3,range)
-%  else 
-% 
-%  end
-%  %Price -1
-%  if event_index(i) >1;
-% range = XLSrange(size(A),[toplefts,12]);
-%  xlswrite(filename,signal(event_index(i)-1),3,range)
-%  else
-% 
-%  end
-%  %Price +5 **Future Prices
-%  if event_index(i)+5<numel(signal);
-% range = XLSrange(size(A),[toplefts,18]);
-%  xlswrite(filename,signal(event_index(i)+5),3,range)
-%  else 
-% 
-%  end
-%  %Price +4
-%  if event_index(i)+4<numel(signal);
-% range = XLSrange(size(A),[toplefts,17]);
-%  xlswrite(filename,signal(event_index(i)+4),3,range)
-% else 
-% 
-% end
-%  
-%  %Price +3
-%  if event_index(i)+3<numel(signal);
-% range = XLSrange(size(A),[toplefts,16]);
-%  xlswrite(filename,signal(event_index(i)+3),3,range)
-%  else 
-% 
-%  end
-%  %Price +2
-%  if event_index(i)+2<numel(signal);
-% range = XLSrange(size(A),[toplefts,15]);
-%  xlswrite(filename,signal(event_index(i)+2),3,range)
-%  else 
-% 
-%  end
-%  %Price +1
-%   if event_index(i)<numel(signal);
-% range = XLSrange(size(A),[toplefts,14]);
-%  xlswrite(filename,signal(event_index(i)+1),3,range)
-%  else
-% 
-%  end
-% %   if event_index(i) < numel(z);
-% %  event_index(i)=event_index(i+1);
-% %   else 
-% %      
-% %   end
-% end
+%  xlswrite(filename,number_of_sells,3,range)
+ 
+
+%here we'll create the loop to write to XLS at each incident number
+A = 4;
+
+% 29-10-16 removing XLS for speed (line 501-532). Remove comment to
+% reinstate. 
+for i = 1:1:event_number;
+%     te=1:1:size(time_event);
+%     date = 1:1:size(date_event);
+%     time_event(te); 
+    excel_row=excel_row+1; 
+    toplefts = [excel_row];
+    NA = 'NA';
+ %Interval% 
+%manual enter
+%Event Number
+range = XLSrange(size(A),[toplefts,2]);
+xlswrite(filename,i,3,range)
+%Time
+%range = XLSrange(size(A),[toplefts,3]);
+%xlswrite(filename,time_event(event_number),3,range)
+%Date
+range = XLSrange(size(A),[toplefts,4]);
+xlswrite(filename,date_event(i),3,range) %F82
+%Order Type (Buy or Sell)
+range = XLSrange(size(A),[toplefts,5]);
+xlswrite(filename,order_type(i),3,range) %G82
+% %Order Number ....come back to
+% range = XLSrange(size(A),[toplefts,6]);
+% xlswrite(filename,'NA',3,range)
+%Volatility
+range = XLSrange(size(A),[toplefts,7]);
+xlswrite(filename,volatility_value(i),3,range)
+%Price 
+range = XLSrange(size(A),[toplefts,13]);
+xlswrite(filename,order_price(i),3,range)
+ %Price -5
+ if event_index(i)>5;
+range = XLSrange(size(A),[toplefts,8]);
+ xlswrite(filename,signal(event_index(i)-5),3,range)
+ else 
+
+ end
+ %Price -4
+if event_index(i)>4;
+range = XLSrange(size(A),[toplefts,9]);
+ xlswrite(filename,signal(event_index(i)-4),3,range)
+else 
+
+end
+ 
+ %Price -3
+ if event_index(i)>3;
+range = XLSrange(size(A),[toplefts,10]);
+ xlswrite(filename,signal(event_index(i)-3),3,range)
+ else 
+
+ end
+ %Price -2
+ if  event_index(i)>2;
+range = XLSrange(size(A),[toplefts,11]);
+ xlswrite(filename,signal(event_index(i)-2),3,range)
+ else 
+
+ end
+ %Price -1
+ if event_index(i) >1;
+range = XLSrange(size(A),[toplefts,12]);
+ xlswrite(filename,signal(event_index(i)-1),3,range)
+ else
+
+ end
+ %Price +5 **Future Prices
+ if event_index(i)+5<numel(signal);
+range = XLSrange(size(A),[toplefts,18]);
+ xlswrite(filename,signal(event_index(i)+5),3,range)
+ else 
+
+ end
+ %Price +4
+ if event_index(i)+4<numel(signal);
+range = XLSrange(size(A),[toplefts,17]);
+ xlswrite(filename,signal(event_index(i)+4),3,range)
+else 
+
+end
+ 
+ %Price +3
+ if event_index(i)+3<numel(signal);
+range = XLSrange(size(A),[toplefts,16]);
+ xlswrite(filename,signal(event_index(i)+3),3,range)
+ else 
+
+ end
+ %Price +2
+ if event_index(i)+2<numel(signal);
+range = XLSrange(size(A),[toplefts,15]);
+ xlswrite(filename,signal(event_index(i)+2),3,range)
+ else 
+
+ end
+ %Price +1
+  if event_index(i)<numel(signal);
+range = XLSrange(size(A),[toplefts,14]);
+ xlswrite(filename,signal(event_index(i)+1),3,range)
+ else
+
+ end
+%   if event_index(i) < numel(z);
+%  event_index(i)=event_index(i+1);
+%   else 
+%      
+%   end
+end
 
 
 % %%Special Plot for comparing MT4 and Matlab Levy index. 
