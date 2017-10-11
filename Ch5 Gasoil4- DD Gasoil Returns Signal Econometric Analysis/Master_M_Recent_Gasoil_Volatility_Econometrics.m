@@ -37,9 +37,39 @@
 % %[n]= numel(alpha);
 
 load('GasoilOpen.mat');
-gasoil_returns=double((log(alpha(2:end)./alpha(1:end-1))))*100;
 
-gasoil_returns_mean=mean(gasoil_returns);
+%% 1. Econometric Analysis of returns series r
+gasoil_returns_mean=mean(r)
+gasoil_returns_stdDev=std(r)
+gasoil_returns_kurtosis=kurtosis(r)
+gasoil_returns_skew=skewness(r)
+gasoil_returns_min=min(r)
+gasoil_returns_max=max(r)
+[gasoil_returns_jaqueBerraH,p,gasoil_returns_jaqueBerra,critval]=jbtest(r) 
+[h,pValue,gasoil_returns_LB,cValuee] = lbqtest(r,'lags',[5,10,15])
+
+%% 2. Econometric Analysis of returns series r2
+gasoil_returns2_mean=mean(r.^2)
+gasoil_returns2_stdDev=std(r.^2)
+gasoil_returns2_kurtosis=kurtosis(r.^2)
+gasoil_returns2_skew=skewness(r.^2)
+gasoil_returns2_min=min(r.^2)
+gasoil_returns2_max=max(r.^2)
+[gasoil_returns2_jaqueBerraH,p,gasoil_returns_jaqueBerra,critval]=jbtest(r.^2) 
+[h,pValue,gasoil_returns2_LB,cValue] = lbqtest(r.^2,'lags',[5,10,15])
+
+%% 3. Autocorrelation of returns innovations - ACF, PACF, Ljung-Box test 
+% ACF
+figure2 = figure;
+subplot3 = subplot(2,1,1,'Parent',figure2);
+hold(subplot3,'on');
+autocorr(r); % input to ACF are just returns, and not innovations after simple linear regression of returns
+title('Autocorrelation of Returns Series');
+% ACF
+subplot4 = subplot(2,1,2,'Parent',figure2);
+hold(subplot4,'on');
+autocorr(r.^2); % input to ACF are just returns2, and not innovations after simple linear regression of returns
+title('Autocorrelation of Squared Returns Series');
 
 %addpath('C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Thesis\myfiles\AppendixB\Chapter 5 - Experiment 1 - Optimisation_Gasoil_Daily_Charts_Volatility_Study')
 %% 2. Set the Window, Shift, MA, and Offset
@@ -56,8 +86,11 @@ excel_row=6;
 %     excel_row=excel_row+1;
 % for w =[25];%[2 5 10 15 20 25 50 100 200];%10 15 20 25 50 100 200];
 % excel_row=excel_row+1;
-R8Backtester_Volatility_Econometrics (spDate, sp, w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj,mmdate)
- %end
+
+%% R8Backtester_Volatility_Econometrics (spDate, sp, w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj,mmdate)
+
+%%
+%end
 % end
     %else
      %   shift = 0; excel_row=excel_row+1;
