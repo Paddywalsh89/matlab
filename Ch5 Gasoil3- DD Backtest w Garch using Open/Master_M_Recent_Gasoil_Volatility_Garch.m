@@ -1,4 +1,4 @@
-%18-10-16 Going to change chart from Mathematica Aeterna version to show
+%%18-10-16 Going to change chart from Mathematica Aeterna version to show
 %volatility. 
 %13-11-16 In addition to above I'm going in inclue the S&P 500 index 
 
@@ -39,7 +39,7 @@
 load('GasoilOpen.mat');
 
 %addpath('C:\Users\Walsh_pad\Dropbox (Personal)\Further Study\Thesis\myfiles\AppendixB\Chapter 5 - Experiment 1 - Optimisation_Gasoil_Daily_Charts_Volatility_Study')
-%% 2. Set the Window, Shift, MA, and Offset
+%% 2. Set the Window, Shift, MA, and Offset, where Offset is used for Excel. 
 w=20; shift=0.5;offset=6;ma=1;
 %clear shift w
 excel_columnc=3;excel_columnd=4;excel_columne=5;excel_columnf=6;excel_columng=7;excel_columnh=8;excel_columni=9;excel_columnj=10;

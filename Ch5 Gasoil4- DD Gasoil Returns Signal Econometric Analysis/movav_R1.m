@@ -1,8 +1,6 @@
 %25/02/16 
-%%Untouched movav - before I changed to get rid of snooping, and look back instead
+%%R1 - I changed R0 to get rid of snooping, and look back instead
 
-
-%%R1 - 25/02/16
 %sum=sum+temp(i+j) changed as MT4 cannot know the value of temp(2) as this
 %is in the future. temp(i-j) changes the lookback direction on the MA. 
 function ma=movav_R1(s,n,w,shift)

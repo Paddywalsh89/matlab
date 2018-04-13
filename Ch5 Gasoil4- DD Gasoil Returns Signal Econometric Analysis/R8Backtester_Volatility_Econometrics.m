@@ -1,18 +1,23 @@
 
 %function R8Backtester_Volatility(spDate,sp,w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj)%gasoil_data_close,excel_row,date,time,indicator
 function R8Backtester_Volatility_Econometrics (spDate, sp, w,shift,gasoil_data,gasoil_data_close,date,offset,ma,excel_row,excel_columnc,excel_columnd,excel_columne,excel_columnf,excel_columng,excel_columnh,excel_columni,excel_columnj,mmdate)
+% spDate is the date associated with S&P500 baseline. 
+% offset is only used in setting the Excel starting point, could be deleted.
+% excel_columnc etc is used for printing all results to: 
+% R0_Trading strategy results_Avg_tester_R1.xlsx
+% mmdate is used for to convert Gasoil price dates to Matlab format. 
 
 %% 1. Intro: Back-testing procedure for Levy_Index/volatility indicator performance
  
 
 %% 2. Read INPUT PARAMETERS
-%w - size of moving window: Default w=20
-%shift - shift of moving average filter 0<shift<1: Default shift=0.5 
-%shift=0 gives fully dynamic trading
-%shift=1 give fully static trading strategy
-%Set length of look-back window for (moving avarege) filtering of 
-%Levy Index and Stochastic Volatility to
-datarange={'Half hourly Gasoil data, Monday 10-Feb-2014 to Friday 14-Feb-2014'};
+% w - size of moving window: Default w=20
+% shift - shift of moving average filter 0<shift<1: Default shift=0.5 
+% shift=0 gives fully dynamic trading
+% shift=1 give fully static trading strategy
+% Set length of look-back window for (moving avarege) filtering of 
+% Levy Index and Stochastic Volatility to
+datarange={'Daily Gasoil data, Monday 4th Oct 2010  - Wednesday 01th Oct 2014'};
 ww=w;
 %Set status of variance of Levy index to:
 varstatus=0; %variance=1 is on, variance=0 is off;
