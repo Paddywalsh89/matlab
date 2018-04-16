@@ -1,2 +1,2 @@
-The purpose of this branch is to sort out this issue with Matlab not sucking in the correct data from Gasoil Open. 
-Once cmplete I will merge back into Master. 
+The purpose of this branch is to add Econometric analysis of the Daily Gasoil Time Series. 
+Once complete will merge into Master. 
