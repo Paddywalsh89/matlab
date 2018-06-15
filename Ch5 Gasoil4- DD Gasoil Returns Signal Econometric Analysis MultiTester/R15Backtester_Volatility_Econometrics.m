@@ -2,7 +2,7 @@
 function R15Backtester_Volatility_Econometrics (signalName, sp500Date, sp500Index,spGsciIndex,w,shift,data,gasoil_data_close,date,offset,ma,mmdate,returnsSignal,interestFreeRate,interestFreeRateDaily,excel_row,excelSheet)
 % R15 
 % getting rid of +w in (signal(i)=data(j+w)) as neither Movav
-% nor LeviIndex needs to wait by +w 
+% nor LeviIndex needs to wait by +w. Also update Excel output to R4. 
 % R14 10-Apr-18 Moving back to R1 movav 
 % R13 07-Apr-18 no changes to trading logic, just want to add 
 % trading optimisation logic to handle multiple shift/w values

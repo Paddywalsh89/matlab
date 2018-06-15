@@ -61,7 +61,7 @@ excel_row=2; excelSheet=1;
 
 for shift = 0:0.1:1; 
     excel_row=excel_row+1;
-    R14Backtester_Volatility_Econometrics (signalName, sp500Date, sp500Index,spGsciIndex,w,shift,data,gasoil_data_close,date,offset,ma,mmdate,returnsSignal,interestFreeRate,interestFreeRateDaily,excel_row,excelSheet)
+    R15Backtester_Volatility_Econometrics (signalName, sp500Date, sp500Index,spGsciIndex,w,shift,data,gasoil_data_close,date,offset,ma,mmdate,returnsSignal,interestFreeRate,interestFreeRateDaily,excel_row,excelSheet)
 end
 
 %% 5. Obtain the Alpha Signal for Alpha DD Crude 
@@ -76,7 +76,7 @@ excel_row=2; excelSheet=2;
 
 for shift = 0:0.1:1; 
     excel_row=excel_row+1;
-    R14Backtester_Volatility_Econometrics (signalName, sp500Date, sp500Index,spGsciIndex,w,shift,data,gasoil_data_close,date,offset,ma,mmdate,returnsSignal,interestFreeRate,interestFreeRateDaily,excel_row,excelSheet)
+    R15Backtester_Volatility_Econometrics (signalName, sp500Date, sp500Index,spGsciIndex,w,shift,data,gasoil_data_close,date,offset,ma,mmdate,returnsSignal,interestFreeRate,interestFreeRateDaily,excel_row,excelSheet)
 end
 
 toc
